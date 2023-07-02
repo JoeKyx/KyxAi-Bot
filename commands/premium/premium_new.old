@@ -1,0 +1,23 @@
+import { SlashCommandBuilder } from "discord.js";
+import { hasPremium } from "../../api/data.js";
+
+export const data = new SlashCommandBuilder()
+  .setName("premium_new")
+  .setDescription("Get premium! (1 month) v2");
+export async function execute(interaction) {
+  await interaction.deferReply({ ephemeral: true });
+  const premium = await hasPremium(interaction.user.id);
+  if (premium) {
+    const dateFormatted = new Date(premium).toLocaleDateString("en-US", {
+      weekday: "long",
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    });
+    await interaction.reply({
+      content: `You already have premium until: ${dateFormatted}!`,
+      ephemeral: true,
+    });
+    return;
+  }
+}

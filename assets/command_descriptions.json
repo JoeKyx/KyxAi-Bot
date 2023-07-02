@@ -1,0 +1,24 @@
+[
+    {"name": "/speak"
+    ,"description": "Use this command to let Kyx AI speak a message."
+    ,"usage": "/speak <message> <voice>"},
+    {"name": "/upload_voice",
+    "description": "Use this command to upload a voice sample. We will then generate a voice based on the provided sample. The voice will only be available to you. The voice sample must be in .mp3 format, and should be about 2-5 minutes long.",
+    "usage": "/upload_voice <voice name> <voice sample>"},
+    {"name": "/voices",
+    "description": "Use this command to list all voices that are available to you.",
+    "usage": "/voices"},
+    {"name": "/delete_voice",
+    "description": "Use this command to delete a voice that you have uploaded.",
+    "usage": "/delete_voice <voice name>"},
+    {"name": "/premium",
+    "description": "Use this command to get premium access to Kyx AI. Premium access gives you access to all voices, and allows you to upload your own voice samples.",
+    "usage": "/premium"},
+    {"name": "/tokens",
+    "description": "Use this command to get the number of tokens you have left. Each character in the <message> of /speak costs 1 token.",
+    "usage": "/tokens"},
+    {"name": "/help",
+    "description": "Use this command to get a list of all commands.",
+    "usage": "/help"}
+
+]

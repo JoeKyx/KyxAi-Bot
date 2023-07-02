@@ -1,0 +1,14 @@
+- Register for all guilds
+
+
+- Page for success
+- Page for error
+- Purchase tokens
+- /help
+- Schönere Nachrichten
+
+
+Later:
+
+- Opus voice & recording
+- ChatGPT integration
