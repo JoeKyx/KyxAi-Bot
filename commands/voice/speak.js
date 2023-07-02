@@ -39,7 +39,7 @@ export const data = new SlashCommandBuilder()
   );
 export const feature = FEATURES.VOICE;
 export async function execute(interaction) {
-  console.log("Speaking...");
+  await interaction.deferReply({ ephemeral: false });
 
   // Check whether guild has Voice Feature activated
   const hasFeature = await hasGuildActivatedFeature(
@@ -48,7 +48,7 @@ export async function execute(interaction) {
   );
 
   if (!hasFeature) {
-    await interaction.reply({
+    await interaction.editReply({
       content: `This server doesn't have the Voice feature activated.`,
       ephemeral: true,
     });
@@ -61,7 +61,7 @@ export async function execute(interaction) {
   // Check whether the user has enough tokens
   const tokens = await userTokens(interaction.user.id);
   if (tokens < message.length) {
-    await interaction.reply(
+    await interaction.editReply(
       `You don't have enough tokens to speak this message. You need ${message.length} tokens but you currently have ${tokens} tokens. You can get more tokens by using the /premium command.`
     );
     return;
@@ -70,7 +70,7 @@ export async function execute(interaction) {
   if (!voice) {
     voice = "Joe Kyx";
   }
-  await interaction.reply(`Speaking as ${voice}: ${message}`);
+  await interaction.editReply(`Speaking as ${voice}: ${message}`);
 
   // Write to Database
   const voiceId = await getVoiceId(interaction.user.id, voice);
