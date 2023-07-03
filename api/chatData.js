@@ -16,6 +16,12 @@ const db = getFirestore(firebase);
 
 export const getInitialChatReply = async (userid, prompt, messageId) => {
   console.log("Message Id: " + messageId);
+  console.log(prompt);
+  // remove tags from prompt
+  prompt = prompt.replace(/<@!?\d+>/g, "");
+
+  console.log(prompt)
+
   const chatMessagesDoc = doc(db, "users", userid, "chatMessages", messageId);
   const chatMessagesSnapshot = await getDoc(chatMessagesDoc);
   const chatMessagesData = chatMessagesSnapshot.data();
