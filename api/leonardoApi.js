@@ -11,32 +11,35 @@ export const generateImages = async (
   height,
   width,
   model,
-  numberOfImages
+  numberOfImages,
+  promptMagic,
+  guidanceScale
 ) => {
-  console.log('generateImages: '+prompt)
+  console.log("generateImages: " + prompt);
   try {
-  const response = await axios.post(
-    `${BASE_URL}generations`,
-    {
-      prompt: prompt,
-      height: height ? height : 768,
-      width: width ? width : 768,
-      num_images: numberOfImages ? numberOfImages : 1,
-      modelId: model ? model : null,
-      negative_prompt: negativePrompt ? negativePrompt : null,
-      sd_version: "v2",
-      presetStyle: "LEONARDO",
-    },
-    {
-      headers: {
-        authorization: `Bearer ${process.env.LEONARDO_API_KEY}`,
+    const response = await axios.post(
+      `${BASE_URL}generations`,
+      {
+        prompt: prompt,
+        height: height ? height : 768,
+        width: width ? width : 768,
+        num_images: numberOfImages ? numberOfImages : 1,
+        modelId: model ? model : null,
+        negative_prompt: negativePrompt ? negativePrompt : null,
+        sd_version: "v2",
+        presetStyle: "LEONARDO",
+        promptMagic: promptMagic ? promptMagic : false,
+        guidance_scale: guidanceScale ? guidanceScale : 7,
       },
-    }
-  );
-  const genId = response.data.sdGenerationJob.generationId;
-  return genId;
+      {
+        headers: {
+          authorization: `Bearer ${process.env.LEONARDO_API_KEY}`,
+        },
+      }
+    );
+    const genId = response.data.sdGenerationJob.generationId;
+    return genId;
   } catch (error) {
-    console.log(error);
     throw error;
   }
 };
@@ -66,6 +69,10 @@ export const getGenerationResult = async (generationId) => {
       return { success: true, results: result };
     }
   }
+
+  const status = response.data?.generations_by_pk?.status
+    ? response.data.generations_by_pk.status
+    : "PENDING";
 
   return {
     success: false,
