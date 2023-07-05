@@ -35,6 +35,24 @@ export const data = new SlashCommandBuilder()
       .setRequired(false)
       .setMaxValue(2048)
   )
+  .addIntegerOption((option) =>
+    option
+      .setName("guidance_scale")
+      .setDescription(
+        "How strongly the generation should reflect the prompt. 7 is recommended. Must be between 1 and 20."
+      )
+      .setRequired(false)
+      .setMaxValue(20)
+      .setMinValue(1)
+  )
+  .addBooleanOption((option) =>
+    option
+      .setName("prompt_magic")
+      .setDescription(
+        "Increases the chance of the prompt being reflected as intended. (doubles token cost)"
+      )
+      .setRequired(false)
+  )
   .addStringOption((option) =>
     option
       .setName("negative_prompt")
@@ -49,7 +67,17 @@ export const data = new SlashCommandBuilder()
       .addChoices(
         { name: "Creative", value: "6bef9f1b-29cb-40c7-b9df-32b51c1f67d3" },
         { name: "Select", value: "cd2b2a15-9760-4174-a5ff-4d2925057376" },
-        { name: "Signature", value: "291be633-cb24-434f-898f-e662799936ad" }
+        { name: "Signature", value: "291be633-cb24-434f-898f-e662799936ad" },
+        { name: "DreamShaper", value: "ac614f96-1082-45bf-be9d-757f2d31c174" },
+        {
+          name: "Absolute Reality",
+          value: "e316348f-7773-490e-adcd-46757c738eb7",
+        },
+        {
+          name: "3D Animation Style",
+          value: "d69c8273-6b17-4a30-a13e-d6637ae1c644",
+        },
+        { name: "Pixel Art", value: "e5a291b6-3990-495a-b1fa-7bd1864510a6" }
       )
   )
   .addIntegerOption((option) =>
@@ -61,7 +89,6 @@ export const data = new SlashCommandBuilder()
   );
 export const feature = FEATURES.IMAGE;
 export async function execute(interaction) {
-  
   await interaction.deferReply({ ephemeral: false });
 
   // Check whether guild has Image Feature activated
@@ -87,7 +114,12 @@ export async function execute(interaction) {
     ? interaction.options.getString("negative_prompt")
     : "";
   const model = interaction.options.getString("model");
-
+  const promptMagic = interaction.options.getBoolean("prompt_magic")
+    ? interaction.options.getBoolean("prompt_magic")
+    : false;
+  const guidanceScale = interaction.options.getInteger("guidance_scale")
+    ? interaction.options.getInteger("guidance_scale")
+    : 7;
 
   const result = await createImageGenerationRequest(
     interaction.user.id,

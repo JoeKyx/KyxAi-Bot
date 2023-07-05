@@ -28,10 +28,17 @@ export const createImageGenerationRequest = async (
   height,
   numImages,
   model,
-  negativePrompt
+  negativePrompt,
+  promptMagic,
+  guidanceScale
 ) => {
   const userData = await userCheck(userId);
-  const tokenCost = numImages * imageGeneration;
+  let multiplier = 1;
+  if (promptMagic) {
+    multiplier = 2;
+  }
+
+  const tokenCost = numImages * imageGeneration * multiplier;
 
   // Check whether the user has enough tokens
   if (userData.tokens < tokenCost) {
@@ -41,30 +48,44 @@ export const createImageGenerationRequest = async (
     };
   }
   try {
-  const generationId = await generateImages(
-    prompt,
-    negativePrompt,
-    height,
-    width,
-    model,
-    numImages
-  );
-  } catch (e) {
-    e.data?.error == 'content moderation filter' ? errorMsg = 'Your prompt was rejected by the content moderation filter. Please try again with a less explicit version.' : errorMsg = 'Something went wrong while generating the images.'
+    const generationId = await generateImages(
+      prompt,
+      negativePrompt,
+      height,
+      width,
+      model,
+      numImages,
+      promptMagic,
+      guidanceScale
+    );
+
+    if (generationId) {
+      removeTokens(userId, tokenCost);
+      return { success: true, generationId: generationId };
+    }
     return {
       success: false,
-      message: errorMsg
+      message: "Something went wrong while generating the images.",
+    };
+  } catch (e) {
+    if (!e.response.data.error) {
+      console.log("We arrived here... somehow");
+      console.log(e);
     }
+    let errorMsg = "Something went wrong while generating the images.";
+    switch (e.response.data.error) {
+      case "content moderation filter":
+        errorMsg =
+          "Your prompt was rejected by the content moderation filter. Please try again with a different prompt.";
+        break;
+      default:
+        errorMsg = e.response.data.error;
+    }
+    return {
+      success: false,
+      message: errorMsg,
+    };
   }
-
-  if (generationId) {
-    removeTokens(userId, tokenCost);
-    return { success: true, generationId: generationId };
-  }
-  return {
-    success: false,
-    message: "Something went wrong while generating the images.",
-  };
 };
 
 export const getImageGenerationResult = async (generationId) => {
