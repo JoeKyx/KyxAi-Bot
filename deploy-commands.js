@@ -1,8 +1,8 @@
 import { REST, Routes } from "discord.js";
-import { readdirSync } from "fs";
 import { join } from "path";
 import dotenv from "dotenv";
 import { getGlobals } from "common-es";
+import { readdirSync, statSync } from "fs";
 
 const { __dirname, __filename } = getGlobals(import.meta.url);
 
@@ -12,7 +12,11 @@ const commands = [];
 
 // Grab all the command files
 const foldersPath = join(__dirname, "commands");
-const commandFolders = readdirSync(foldersPath);
+
+const commandFolders = readdirSync(foldersPath).filter((folder) => {
+  // Check if the item is a directory
+  return statSync(join(foldersPath, folder)).isDirectory();
+});
 
 for (const folder of commandFolders) {
   const commandsPath = join(foldersPath, folder);
