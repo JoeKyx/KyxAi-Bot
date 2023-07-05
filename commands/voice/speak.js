@@ -36,6 +36,13 @@ export const data = new SlashCommandBuilder()
       .setDescription(
         "The person who will speak the message. You can check your available voices with /voices"
       )
+  )
+  .addBooleanOption((option) =>
+    option
+      .setName("speak_in_channel")
+      .setDescription(
+        "Whether to join your current voice channel or not (default: true)"
+      )
   );
 export const feature = FEATURES.VOICE;
 export async function execute(interaction) {
@@ -76,13 +83,6 @@ export async function execute(interaction) {
   const voiceId = await getVoiceId(interaction.user.id, voice);
   const docId = await useVoice(interaction.user.id, voiceId, message, voice);
 
-  const player = createAudioPlayer();
-  const connection = joinVoiceChannel({
-    channelId: interaction.member.voice.channelId,
-    guildId: interaction.guildId,
-    adapterCreator: interaction.guild.voiceAdapterCreator,
-  });
-
   const mp3File = await getAudio(message, voiceId);
 
   console.log("Wir haben eine MP3: ", mp3File);
@@ -105,6 +105,19 @@ export async function execute(interaction) {
     addMp3Link(interaction.user.id, docId, fileUrl);
   }
 
+  const speakInChannel = interaction.options.getBoolean("speak_in_channel");
+
+  if (speakInChannel === false || !interaction.member.voice.channelId) {
+    console.log("return");
+    return;
+  }
+
+  const player = createAudioPlayer();
+  const connection = joinVoiceChannel({
+    channelId: interaction.member.voice.channelId,
+    guildId: interaction.guildId,
+    adapterCreator: interaction.guild.voiceAdapterCreator,
+  });
   connection.subscribe(player);
 
   player.play(resource);
