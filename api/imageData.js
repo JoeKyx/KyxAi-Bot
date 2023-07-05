@@ -40,6 +40,7 @@ export const createImageGenerationRequest = async (
       message: `You don't have enough tokens to generate ${numImages} images. You need ${tokenCost} tokens, but you only have ${userData.tokens} tokens.`,
     };
   }
+  try {
   const generationId = await generateImages(
     prompt,
     negativePrompt,
@@ -48,6 +49,14 @@ export const createImageGenerationRequest = async (
     model,
     numImages
   );
+  } catch (e) {
+    e.data?.error == 'content moderation filter' ? errorMsg = 'Your prompt was rejected by the content moderation filter. Please try again with a less explicit version.' : errorMsg = 'Something went wrong while generating the images.'
+    return {
+      success: false,
+      message: errorMsg
+    }
+  }
+
   if (generationId) {
     removeTokens(userId, tokenCost);
     return { success: true, generationId: generationId };

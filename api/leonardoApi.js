@@ -13,6 +13,8 @@ export const generateImages = async (
   model,
   numberOfImages
 ) => {
+  console.log('generateImages: '+prompt)
+  try {
   const response = await axios.post(
     `${BASE_URL}generations`,
     {
@@ -33,6 +35,10 @@ export const generateImages = async (
   );
   const genId = response.data.sdGenerationJob.generationId;
   return genId;
+  } catch (error) {
+    console.log(error);
+    throw error;
+  }
 };
 
 export const getGenerationResult = async (generationId) => {
