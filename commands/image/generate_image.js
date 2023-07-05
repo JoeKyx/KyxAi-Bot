@@ -61,6 +61,9 @@ export const data = new SlashCommandBuilder()
   );
 export const feature = FEATURES.IMAGE;
 export async function execute(interaction) {
+  
+  await interaction.deferReply({ ephemeral: false });
+
   // Check whether guild has Image Feature activated
   const hasFeature = await hasGuildActivatedFeature(
     interaction.guildId,
@@ -68,7 +71,7 @@ export async function execute(interaction) {
   );
 
   if (!hasFeature) {
-    await interaction.reply({
+    await interaction.editReply({
       content: `This server doesn't have the Image feature activated.`,
       ephemeral: true,
     });
@@ -85,7 +88,6 @@ export async function execute(interaction) {
     : "";
   const model = interaction.options.getString("model");
 
-  await interaction.deferReply({ ephemeral: false });
 
   const result = await createImageGenerationRequest(
     interaction.user.id,
