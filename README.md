@@ -4,6 +4,7 @@ node main to start bot
 node deploy-commands to register /SLASH commands
 
 .env file needed with following keys:
+
 TOKEN=
 
 CLIENT_ID= your Discord Client ID
