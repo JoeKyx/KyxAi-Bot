@@ -1,5 +1,3 @@
-- Register for all guilds
-
 
 - Page for success
 - Page for error
