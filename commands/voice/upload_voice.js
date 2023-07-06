@@ -43,7 +43,11 @@ export async function execute(interaction) {
   console.log("Executing upload_voice command");
 
   // Check if the user is premium
-  const isPremium = await hasPremium(interaction.user.id);
+  //const isPremium = await hasPremium(interaction.user.id);
+
+  // We don't have premium yet, so we'll just set it to true
+  const isPremium = true;
+
   if (!isPremium) {
     await interaction.reply({
       content:
