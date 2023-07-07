@@ -20,7 +20,7 @@ export const getInitialChatReply = async (userid, prompt, messageId) => {
   // remove tags from prompt
   prompt = prompt.replace(/<@!?\d+>/g, "");
 
-  console.log(prompt)
+  console.log(prompt);
 
   const chatMessagesDoc = doc(db, "users", userid, "chatMessages", messageId);
   const chatMessagesSnapshot = await getDoc(chatMessagesDoc);
@@ -102,6 +102,7 @@ export const saveChatMessage = async (
   messageId,
   openAiParentMessageId
 ) => {
+  console.log("saving message: " + openAiParentMessageId, messageId);
   const chatMessagesDoc = doc(db, "users", userid, "chatMessages", messageId);
   await setDoc(
     chatMessagesDoc,

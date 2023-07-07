@@ -3,6 +3,7 @@ import path from "node:path";
 import { init } from "./api/discordApi.js";
 import { getGlobals } from "common-es";
 import { generateDependencyReport } from "@discordjs/voice";
+import { splitMessageIntoChunks } from "./helper/textHelper.js";
 import { config } from "dotenv";
 import {
   Client,
@@ -52,12 +53,12 @@ let fsObjects = fs.readdirSync(foldersPath);
 
 for (const fsObject of fsObjects) {
   const potentialFolderPath = path.join(foldersPath, fsObject);
-  
+
   if (fs.lstatSync(potentialFolderPath).isDirectory()) {
     const commandFiles = fs
       .readdirSync(potentialFolderPath)
       .filter((file) => file.endsWith(".js"));
-    
+
     for (const file of commandFiles) {
       console.log(file);
       const filePath = path.join(potentialFolderPath, file);
@@ -79,11 +80,11 @@ for (const fsObject of fsObjects) {
 client.buttons = new Collection();
 
 const buttonsFolderPath = path.join(__dirname, "buttons");
- fsObjects = fs.readdirSync(buttonsFolderPath);
+fsObjects = fs.readdirSync(buttonsFolderPath);
 
 for (const fsObject of fsObjects) {
   const potentialFolderPath = path.join(buttonsFolderPath, fsObject);
-  
+
   if (fs.lstatSync(potentialFolderPath).isDirectory()) {
     const buttonFiles = fs
       .readdirSync(potentialFolderPath)
@@ -184,7 +185,11 @@ client.on(Events.MessageCreate, async (message) => {
       message.id
     );
 
-    const replyMessage = await message.reply(reply.response);
+    // Split the message into multiple messages with a length of 2000 characters
+    const splitMessage = splitMessageIntoChunks(reply.response, 2000);
+
+    // Send the reply
+    const replyMessage = await message.reply(splitMessage[0]);
     // Wenn die Antwort erfolgreich war, speichere die Nachricht in der Datenbank
     if (reply.success) {
       await saveChatMessage(
@@ -192,6 +197,17 @@ client.on(Events.MessageCreate, async (message) => {
         replyMessage.id,
         reply.openAiParentMessageId
       );
+    }
+    // Send the rest of the message if there are any
+    if (splitMessage.length > 1) {
+      for (let i = 1; i < splitMessage.length; i++) {
+        const newReply = await replyMessage.reply(splitMessage[i]);
+        await saveChatMessage(
+          message.author.id,
+          newReply.id,
+          reply.openAiParentMessageId
+        );
+      }
     }
   }
 
@@ -203,13 +219,19 @@ client.on(Events.MessageCreate, async (message) => {
     );
     if (repliedMessage.author.id !== client.user.id) return;
     console.log(message.reference.messageId);
+    console.log("Get chat reply");
+
     const reply = await getChatReply(
       message.author.id,
       message.content,
       message.reference.messageId,
       message.id
     );
-    const replyMessage = await repliedMessage.reply(reply.response);
+
+    // Split the message into multiple messages with a length of 2000 characters
+    const splitMessage = splitMessageIntoChunks(reply.response, 2000);
+
+    const replyMessage = await repliedMessage.reply(splitMessage[0]);
     // Wenn die Antwort erfolgreich war, speichere die Nachricht in der Datenbank
     if (reply.success) {
       await saveChatMessage(
@@ -217,6 +239,18 @@ client.on(Events.MessageCreate, async (message) => {
         replyMessage.id,
         reply.openAiParentMessageId
       );
+    }
+
+    // Send the rest of the message if there are any
+    if (splitMessage.length > 1) {
+      for (let i = 1; i < splitMessage.length; i++) {
+        const newReply = await replyMessage.reply(splitMessage[i]);
+        await saveChatMessage(
+          message.author.id,
+          newReply.id,
+          reply.openAiParentMessageId
+        );
+      }
     }
   }
 });
