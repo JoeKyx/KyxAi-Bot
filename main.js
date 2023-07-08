@@ -3,6 +3,8 @@ import path from "node:path";
 import { init } from "./api/discordApi.js";
 import { getGlobals } from "common-es";
 import { generateDependencyReport } from "@discordjs/voice";
+
+import { upscaleImageHandler } from "./helper/upscaleImage.js";
 import {
   splitMessageIntoChunks,
   checkForImageGeneration,
@@ -144,27 +146,33 @@ client.on(Events.InteractionCreate, async (interaction) => {
       }
     }
   } else if (interaction.isButton()) {
-    console.log("Button pressed");
-    const button = interaction.client.buttons.get(interaction.customId);
-    if (!button) {
-      console.log(`Invalid button: ${interaction.customId}`);
-      return;
-    }
+    if (interaction.customId.startsWith("upscale_")) {
+      const imageId = interaction.customId.slice("upscale_".length);
+      console.log("Upscale Button pressed");
+      await upscaleImageHandler(interaction.user.id, imageId, interaction);
+    } else {
+      console.log("Other Button pressed");
+      const button = interaction.client.buttons.get(interaction.customId);
+      if (!button) {
+        console.log(`Invalid button: ${interaction.customId}`);
+        return;
+      }
 
-    try {
-      await button.execute(interaction);
-    } catch (error) {
-      console.error(error);
-      if (interaction.replied || interaction.deferred) {
-        await interaction.followUp({
-          content: "There was an error while executing this button!",
-          ephemeral: true,
-        });
-      } else {
-        await interaction.reply({
-          content: "There was an error while executing this button!",
-          ephemeral: true,
-        });
+      try {
+        await button.execute(interaction);
+      } catch (error) {
+        console.error(error);
+        if (interaction.replied || interaction.deferred) {
+          await interaction.followUp({
+            content: "There was an error while executing this button!",
+            ephemeral: true,
+          });
+        } else {
+          await interaction.reply({
+            content: "There was an error while executing this button!",
+            ephemeral: true,
+          });
+        }
       }
     }
   }

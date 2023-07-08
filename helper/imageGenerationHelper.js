@@ -4,6 +4,10 @@ import {
 } from "../api/imageData.js";
 import { saveImageGenerationInfo } from "../api/imageData.js";
 
+import models from "../assets/models.json" assert { type: "json" };
+
+import fetch from "node-fetch";
+
 import { ButtonBuilder, ButtonStyle, ActionRowBuilder } from "discord.js";
 
 export const generateImages = async (
@@ -17,6 +21,13 @@ export const generateImages = async (
   promptMagic,
   guidance_scale
 ) => {
+  // If the user didn't specify a width and height, use the default values from the model
+  if (!width || !height) {
+    const modelInfo = models.find((m) => m.id === model);
+    width = modelInfo.width;
+    height = modelInfo.height;
+  }
+
   const result = await createImageGenerationRequest(
     interaction.user.id,
     prompt,
@@ -115,13 +126,9 @@ export const generateImagesFromMessage = async (
   }
 
   const results = generationResult.results;
-  await message.reply({
-    content: `Your images are ready!`,
-    ephemeral: true,
-  });
 
   // Send the images to the channel where the command was used
-  sendAndSaveReply(
+  await sendAndSaveReply(
     results,
     false,
     message,
@@ -141,39 +148,66 @@ const sendAndSaveReply = async (
   guildId,
   prompt
 ) => {
+  const images = [];
+  const downloadButtonsRow = [];
+  const upscaleButtonsRow = [];
   for (let i = 0; i < results.length; i++) {
-    // Add buttons to upscale and download the image
+    const response = await fetch(results[i].url);
+
+    if (!response.ok) {
+      console.error(
+        `Could not fetch image at ${results[i].url}: ${response.status} ${response.statusText}`
+      );
+      continue; // skip this image
+    }
+
+    const arrayBuffer = await response.arrayBuffer();
+    const buffer = arrayBufferToBuffer(arrayBuffer);
+    images.push({ attachment: buffer, name: `${results[i].id}.png` });
+
     const upscaleButton = new ButtonBuilder()
-      .setCustomId("upscale_image")
-      .setLabel("Upscale")
+      .setCustomId(`upscale_${results[i].id}`)
+      .setLabel("Upscale " + (i + 1))
       .setStyle(ButtonStyle.Primary)
       .setEmoji("🔍");
     const downloadButton = new ButtonBuilder()
-      .setLabel("Download")
+      .setLabel("DL " + (i + 1))
       .setStyle(ButtonStyle.Link)
       .setURL(results[i].url)
       .setEmoji("⬇️");
 
-    const row = new ActionRowBuilder().addComponents(
-      upscaleButton,
-      downloadButton
-    );
-    let messageId = -1;
-    if (interaction) {
-      const msg = await interaction.channel.send({
-        content: results[i].url,
-        components: [row],
-        fetchReply: true,
-      });
-      messageId = msg.id;
-    } else {
-      const replyMessage = await message.channel.send({
-        content: results[i].url,
-        components: [row],
-        fetchReply: true,
-      });
-      messageId = replyMessage.id;
-    }
+    upscaleButtonsRow.push(upscaleButton);
+    downloadButtonsRow.push(downloadButton);
+  }
+
+  const buttons = [
+    new ActionRowBuilder().addComponents(upscaleButtonsRow),
+    new ActionRowBuilder().addComponents(downloadButtonsRow),
+  ];
+
+  let messageId = -1;
+
+  // Send the images to the channel where the command was used
+  if (interaction) {
+    await interaction.editReply({
+      content: "Your images are ready!",
+      files: images,
+      ephemeral: false,
+      components: buttons,
+    });
+    messageId = interaction.id;
+  } else {
+    await message.reply({
+      content: "Your images are ready!",
+      files: images,
+      ephemeral: false,
+      components: buttons,
+    });
+    messageId = message.id;
+  }
+
+  // For each image result, save the image generation info
+  for (let i = 0; i < results.length; i++) {
     await saveImageGenerationInfo(
       userId,
       results[i].id,
@@ -185,3 +219,12 @@ const sendAndSaveReply = async (
     );
   }
 };
+
+function arrayBufferToBuffer(ab) {
+  let buffer = Buffer.alloc(ab.byteLength);
+  let view = new Uint8Array(ab);
+  for (let i = 0; i < buffer.length; ++i) {
+    buffer[i] = view[i];
+  }
+  return buffer;
+}

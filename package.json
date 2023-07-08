@@ -28,6 +28,7 @@
     "lamejs": "github:zhuker/lamejs",
     "libsodium": "^0.7.11",
     "libsodium-wrappers": "^0.7.11",
+    "node-fetch": "^3.3.1",
     "opusscript": "^0.0.8",
     "stripe": "^12.6.0"
   },
