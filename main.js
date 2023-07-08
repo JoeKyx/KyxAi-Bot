@@ -231,7 +231,7 @@ client.on(Events.MessageCreate, async (message) => {
     // Split the message into multiple messages with a length of 2000 characters
     const splitMessage = splitMessageIntoChunks(reply.response, 2000);
 
-    const replyMessage = await repliedMessage.reply(splitMessage[0]);
+    const replyMessage = await message.reply(splitMessage[0]);
     // Wenn die Antwort erfolgreich war, speichere die Nachricht in der Datenbank
     if (reply.success) {
       await saveChatMessage(
