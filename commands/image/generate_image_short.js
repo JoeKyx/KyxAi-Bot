@@ -5,7 +5,7 @@ import { generateImages } from "../../helper/imageGenerationHelper.js";
 import { hasGuildActivatedFeature, FEATURES } from "../../api/data.js";
 
 export const data = new SlashCommandBuilder()
-  .setName("generate_image")
+  .setName("gi")
   .setDescription("Generate an image based on a prompt.")
   .addStringOption((option) =>
     option

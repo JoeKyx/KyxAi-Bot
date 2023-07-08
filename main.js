@@ -3,7 +3,11 @@ import path from "node:path";
 import { init } from "./api/discordApi.js";
 import { getGlobals } from "common-es";
 import { generateDependencyReport } from "@discordjs/voice";
-import { splitMessageIntoChunks } from "./helper/textHelper.js";
+import {
+  splitMessageIntoChunks,
+  checkForImageGeneration,
+  cleanReply,
+} from "./helper/textHelper.js";
 import { config } from "dotenv";
 import {
   Client,
@@ -189,7 +193,7 @@ client.on(Events.MessageCreate, async (message) => {
     const splitMessage = splitMessageIntoChunks(reply.response, 2000);
 
     // Send the reply
-    const replyMessage = await message.reply(splitMessage[0]);
+    const replyMessage = await message.reply(cleanReply(splitMessage[0]));
     // Wenn die Antwort erfolgreich war, speichere die Nachricht in der Datenbank
     if (reply.success) {
       await saveChatMessage(
@@ -197,11 +201,12 @@ client.on(Events.MessageCreate, async (message) => {
         replyMessage.id,
         reply.openAiParentMessageId
       );
+      await checkForImageGeneration(reply.response, message);
     }
     // Send the rest of the message if there are any
     if (splitMessage.length > 1) {
       for (let i = 1; i < splitMessage.length; i++) {
-        const newReply = await replyMessage.reply(splitMessage[i]);
+        const newReply = await replyMessage.reply(cleanReply(splitMessage[i]));
         await saveChatMessage(
           message.author.id,
           newReply.id,
@@ -231,7 +236,7 @@ client.on(Events.MessageCreate, async (message) => {
     // Split the message into multiple messages with a length of 2000 characters
     const splitMessage = splitMessageIntoChunks(reply.response, 2000);
 
-    const replyMessage = await message.reply(splitMessage[0]);
+    const replyMessage = await message.reply(cleanReply(splitMessage[0]));
     // Wenn die Antwort erfolgreich war, speichere die Nachricht in der Datenbank
     if (reply.success) {
       await saveChatMessage(
@@ -239,12 +244,13 @@ client.on(Events.MessageCreate, async (message) => {
         replyMessage.id,
         reply.openAiParentMessageId
       );
+      await checkForImageGeneration(reply.response, message);
     }
 
     // Send the rest of the message if there are any
     if (splitMessage.length > 1) {
       for (let i = 1; i < splitMessage.length; i++) {
-        const newReply = await replyMessage.reply(splitMessage[i]);
+        const newReply = await replyMessage.reply(cleanReply(splitMessage[i]));
         await saveChatMessage(
           message.author.id,
           newReply.id,
