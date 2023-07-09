@@ -22,10 +22,14 @@ export const generateImages = async (
   guidance_scale
 ) => {
   // If the user didn't specify a width and height, use the default values from the model
-  if (!width || !height) {
+  if ((!width || !height) && model) {
     const modelInfo = models.find((m) => m.id === model);
-    width = modelInfo.width;
-    height = modelInfo.height;
+    if (!modelInfo) {
+      width = modelInfo.width;
+      height = modelInfo.height;
+    } else {
+      console.log(`Could not find model info for model ${model}`);
+    }
   }
 
   const result = await createImageGenerationRequest(
