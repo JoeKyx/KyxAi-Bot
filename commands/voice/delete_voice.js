@@ -5,7 +5,7 @@ import { deleteVoice } from "../../api/voiceData.js";
 import { hasGuildActivatedFeature, FEATURES } from "../../api/data.js";
 
 export const data = new SlashCommandBuilder()
-  .setName("remove_voice")
+  .setName("delete_voice")
   .setDescription("Remove a voice from your account")
   .addStringOption((option) =>
     option

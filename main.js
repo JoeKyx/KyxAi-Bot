@@ -179,6 +179,7 @@ client.on(Events.InteractionCreate, async (interaction) => {
 });
 
 client.on(Events.MessageCreate, async (message) => {
+  console.log(message.content);
   if (message.author.bot) return;
   if (
     message.content.includes("@here") ||

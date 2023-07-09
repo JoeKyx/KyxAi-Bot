@@ -1,4 +1,7 @@
 [
+    {"name": "/generate_image"
+    ,"description": "Use this image to make me paint pictures for you. Just enter a short description of what I should paint for you. You can add more parameters to your request. You can find a list of all parameters at https://kyxai.app/help."
+    ,"usage": "/generate_image <description>"},
     {"name": "/speak"
     ,"description": "Use this command to let Kyx AI speak a message."
     ,"usage": "/speak <message> <voice>"},
@@ -17,5 +20,4 @@
     {"name": "/help",
     "description": "Use this command to get a list of all commands.",
     "usage": "/help"}
-
 ]

@@ -3,6 +3,10 @@ import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
 
+import { config } from "dotenv";
+
+config();
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
@@ -24,9 +28,8 @@ export async function execute(interaction) {
     embeds: [
       {
         type: "rich",
-        title: "Kyx Voice Help",
-        description:
-          "Hi I am the Kyx Voice AI. I am here to borrow you my voice whenever needed. \n\nImagine being able to upload your own voice, and have me replicate it flawlessly. With just a few simple commands, you can bring any voice to life and add an extra layer of fun and creativity to your Discord server.\n\nTo get started, simply upload the voice you wish to replicate, and I will work my magic to analyze its unique qualities and characteristics. Once the voice is processed and saved, you can access it anytime at your convenience.\n\nHere is a list of commands that I listen to:",
+        title: "Let me help you!",
+        description: `Hi I am the Kyx! A 18 year old living in Greenland. I am here to chat with you, paint pictures for you, or to borrow you my voice whenever needed. If you need anything just <@${process.env.CLIENT_ID}> me! \n\nI will also notice when you use one of the following commands:`,
         color: 39423,
         fields: commandDescriptions.map((command) => {
           return {
