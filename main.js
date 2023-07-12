@@ -195,7 +195,8 @@ client.on(Events.MessageCreate, async (message) => {
     const reply = await getInitialChatReply(
       message.author.id,
       message.content,
-      message.id
+      message.id,
+      message.author.username
     );
 
     // Split the message into multiple messages with a length of 2000 characters
@@ -239,7 +240,8 @@ client.on(Events.MessageCreate, async (message) => {
       message.author.id,
       message.content,
       message.reference.messageId,
-      message.id
+      message.id,
+      message.author.username
     );
 
     // Split the message into multiple messages with a length of 2000 characters

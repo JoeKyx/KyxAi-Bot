@@ -14,7 +14,12 @@ import {
 
 const db = getFirestore(firebase);
 
-export const getInitialChatReply = async (userid, prompt, messageId) => {
+export const getInitialChatReply = async (
+  userid,
+  prompt,
+  messageId,
+  username
+) => {
   console.log("Message Id: " + messageId);
   console.log(prompt);
   // remove tags from prompt
@@ -27,7 +32,7 @@ export const getInitialChatReply = async (userid, prompt, messageId) => {
   const chatMessagesData = chatMessagesSnapshot.data();
   let chatResponse;
 
-  chatResponse = await chat(prompt);
+  chatResponse = await chat(prompt, null, username);
 
   if (chatResponse.success) {
     await removeTokens(userid, 10);
@@ -51,7 +56,8 @@ export const getChatReply = async (
   userid,
   prompt,
   parentMessageId,
-  messageId
+  messageId,
+  username
 ) => {
   const chatMessagesDoc = doc(
     db,
@@ -68,7 +74,8 @@ export const getChatReply = async (
 
     const chatResponse = await chat(
       prompt,
-      chatMessagesData.openAiParentMessageId
+      chatMessagesData.openAiParentMessageId,
+      username
     );
     if (chatResponse.success) {
       await removeTokens(userid, 10);
