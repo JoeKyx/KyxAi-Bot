@@ -59,13 +59,7 @@ export const getChatReply = async (
   messageId,
   username
 ) => {
-  const chatMessagesDoc = doc(
-    db,
-    "users",
-    userid,
-    "chatMessages",
-    parentMessageId
-  );
+  const chatMessagesDoc = doc(db, "chatMessages", parentMessageId);
   const chatMessagesSnapshot = await getDoc(chatMessagesDoc);
   // Check if the parent message id exists in the database
   if (chatMessagesSnapshot.exists()) {
@@ -110,7 +104,7 @@ export const saveChatMessage = async (
   openAiParentMessageId
 ) => {
   console.log("saving message: " + openAiParentMessageId, messageId);
-  const chatMessagesDoc = doc(db, "users", userid, "chatMessages", messageId);
+  const chatMessagesDoc = doc(db, "chatMessages", messageId);
   await setDoc(
     chatMessagesDoc,
     {

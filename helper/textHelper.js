@@ -1,4 +1,5 @@
 import { generateImagesFromMessage } from "./imageGenerationHelper.js";
+import { saveChatMessage } from "../api/chatData.js";
 export const splitMessageIntoChunks = (message, chunkSize) => {
   const chunks = [];
   let currentChunk = "";
@@ -25,7 +26,7 @@ export const checkForImageGeneration = async (response, message) => {
   }
   // Return all text after the 'IMGPMPT:'
   console.log("Generating image");
-  await generateImagesFromMessage(
+  const replyId = await generateImagesFromMessage(
     message,
     1,
     response.substring(index + 8),
@@ -36,7 +37,8 @@ export const checkForImageGeneration = async (response, message) => {
     false,
     7
   );
-  return true;
+
+  return replyId;
 };
 
 export const cleanReply = (reply) => {

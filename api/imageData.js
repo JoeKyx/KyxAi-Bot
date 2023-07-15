@@ -1,4 +1,9 @@
-import { generateImages, getGenerationResult } from "../api/leonardoApi.js";
+import {
+  generateImages,
+  getGenerationResult,
+  initUploadEndpoint,
+  uploadDatasetImage,
+} from "../api/leonardoApi.js";
 
 import firebase from "./firebaseApi.js";
 
@@ -18,6 +23,7 @@ import {
   getDoc,
   updateDoc,
 } from "firebase/firestore";
+import { request } from "express";
 
 const db = getFirestore(firebase);
 
@@ -30,7 +36,9 @@ export const createImageGenerationRequest = async (
   model,
   negativePrompt,
   promptMagic,
-  guidanceScale
+  guidanceScale,
+  initImageId,
+  init_strength
 ) => {
   const userData = await userCheck(userId);
   let multiplier = 1;
@@ -56,7 +64,9 @@ export const createImageGenerationRequest = async (
       model,
       numImages,
       promptMagic,
-      guidanceScale
+      guidanceScale,
+      initImageId,
+      init_strength
     );
 
     if (generationId) {
@@ -169,4 +179,52 @@ export const getDownloadUrl = async (messageId, guildId) => {
     return null;
   }
   return generationsSnapshot.docs[0].data().url;
+};
+
+export const uploadImage = async (fileUrl) => {
+  // Check whether the file is an image (png, jpg, jpeg, webp)
+  const fileExtension = fileUrl.split(".").pop();
+  if (
+    fileExtension != "png" &&
+    fileExtension != "jpg" &&
+    fileExtension != "jpeg" &&
+    fileExtension != "webp"
+  ) {
+    return {
+      success: false,
+      message: "The file you uploaded is not an image.",
+    };
+  }
+
+  // Get the upload URL from the backend
+  const uploadEndpoint = await initUploadEndpoint(fileExtension);
+
+  console.log(uploadEndpoint);
+  if (!uploadEndpoint.success || !uploadEndpoint.data) {
+    return {
+      success: false,
+      message: uploadEndpoint.message,
+    };
+  }
+  try {
+    // generate random filename
+    const filename = Math.random().toString(36).substring(2, 15);
+    const pathForTempFile = `${filename}.${fileExtension}`;
+    const response = await uploadDatasetImage(
+      fileUrl,
+      uploadEndpoint.data,
+      pathForTempFile,
+      uploadEndpoint.data.id
+    );
+    return {
+      success: true,
+      initImageId: uploadEndpoint.data.id,
+    };
+  } catch (e) {
+    console.log(e);
+    return {
+      success: false,
+      message: "Something went wrong while uploading the image.",
+    };
+  }
 };

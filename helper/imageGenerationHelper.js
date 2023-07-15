@@ -19,7 +19,9 @@ export const generateImages = async (
   negativePrompt,
   model,
   promptMagic,
-  guidance_scale
+  guidance_scale,
+  initImageId,
+  init_strength
 ) => {
   // If the user didn't specify a width and height, use the default values from the model
   if ((!width || !height) && model) {
@@ -41,7 +43,9 @@ export const generateImages = async (
     model,
     negativePrompt,
     promptMagic,
-    guidance_scale
+    guidance_scale,
+    initImageId,
+    init_strength
   );
 
   if (!result.success) {
@@ -96,7 +100,8 @@ export const generateImagesFromMessage = async (
   negativePrompt,
   model,
   promptMagic,
-  guidance_scale
+  guidance_scale,
+  initImageId
 ) => {
   const result = await createImageGenerationRequest(
     message.author.id,
@@ -107,7 +112,8 @@ export const generateImagesFromMessage = async (
     model,
     negativePrompt,
     promptMagic,
-    guidance_scale
+    guidance_scale,
+    initImageId
   );
 
   if (!result.success) {
@@ -132,7 +138,7 @@ export const generateImagesFromMessage = async (
   const results = generationResult.results;
 
   // Send the images to the channel where the command was used
-  await sendAndSaveReply(
+  const replyId = await sendAndSaveReply(
     results,
     false,
     message,
@@ -141,6 +147,7 @@ export const generateImagesFromMessage = async (
     message.guildId,
     prompt
   );
+  return replyId;
 };
 
 const sendAndSaveReply = async (
@@ -190,24 +197,27 @@ const sendAndSaveReply = async (
   ];
 
   let messageId = -1;
+  let replyId = -1;
 
   // Send the images to the channel where the command was used
   if (interaction) {
-    await interaction.editReply({
+    const interactionResponse = await interaction.editReply({
       content: "Your images are ready!",
       files: images,
       ephemeral: false,
       components: buttons,
     });
     messageId = interaction.id;
+    replyId = interactionResponse.id;
   } else {
-    await message.reply({
+    const messageResponse = await message.reply({
       content: "Your images are ready!",
       files: images,
       ephemeral: false,
       components: buttons,
     });
     messageId = message.id;
+    replyId = messageResponse.id;
   }
 
   // For each image result, save the image generation info
@@ -222,6 +232,7 @@ const sendAndSaveReply = async (
       results[i].url
     );
   }
+  return replyId;
 };
 
 function arrayBufferToBuffer(ab) {

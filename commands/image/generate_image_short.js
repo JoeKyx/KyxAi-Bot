@@ -6,7 +6,7 @@ import { hasGuildActivatedFeature, FEATURES } from "../../api/data.js";
 
 import createGenerateImageCommand from "../../helper/createGenerateImageCommand.js";
 
-export const data = createGenerateImageCommand("gi");
+export const data = createGenerateImageCommand("gi", false);
 export const feature = FEATURES.IMAGE;
 export async function execute(interaction) {
   await interaction.deferReply({ ephemeral: false });

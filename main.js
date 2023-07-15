@@ -211,7 +211,14 @@ client.on(Events.MessageCreate, async (message) => {
         replyMessage.id,
         reply.openAiParentMessageId
       );
-      await checkForImageGeneration(reply.response, message);
+      const replyId = await checkForImageGeneration(reply.response, message);
+      if (replyId) {
+        await saveChatMessage(
+          message.author.id,
+          replyId,
+          reply.openAiParentMessageId
+        );
+      }
     }
     // Send the rest of the message if there are any
     if (splitMessage.length > 1) {
@@ -255,7 +262,14 @@ client.on(Events.MessageCreate, async (message) => {
         replyMessage.id,
         reply.openAiParentMessageId
       );
-      await checkForImageGeneration(reply.response, message);
+      const replyId = await checkForImageGeneration(reply.response, message);
+      if (replyId) {
+        await saveChatMessage(
+          message.author.id,
+          replyId,
+          reply.openAiParentMessageId
+        );
+      }
     }
 
     // Send the rest of the message if there are any

@@ -1,5 +1,16 @@
 import axios from "axios";
 import { config } from "dotenv";
+import fetch from "node-fetch";
+import { pipeline } from "stream";
+import { promisify } from "util";
+import fs from "fs";
+import got from "got";
+import path from "path";
+import { fileURLToPath } from "url";
+import FormData from "form-data";
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const pipe = promisify(pipeline);
 
 config();
 
@@ -13,9 +24,12 @@ export const generateImages = async (
   model,
   numberOfImages,
   promptMagic,
-  guidanceScale
+  guidanceScale,
+  initImageId,
+  init_strength
 ) => {
   console.log("generateImages: " + prompt);
+  console.log("initImageId: " + initImageId);
   try {
     const response = await axios.post(
       `${BASE_URL}generations`,
@@ -28,8 +42,13 @@ export const generateImages = async (
         negative_prompt: negativePrompt ? negativePrompt : null,
         sd_version: "v2",
         presetStyle: "LEONARDO",
-        promptMagic: promptMagic ? promptMagic : false,
+        //  Only add the prompt_magic parameter if we don't have an initImageId otherwise remix does not work
+        ...(initImageId
+          ? {}
+          : { promptMagic: promptMagic ? promptMagic : false }),
         guidance_scale: guidanceScale ? guidanceScale : 7,
+        init_strength: init_strength ? init_strength : null,
+        init_image_id: initImageId ? initImageId : null,
       },
       {
         headers: {
@@ -133,3 +152,107 @@ export const getUpscaledImage = async (variationId) => {
     status: response.data.generated_image_variation_generic[0].status,
   };
 };
+
+export const initUploadEndpoint = async (fileExtension) => {
+  const response = await axios.post(
+    `${BASE_URL}init-image`,
+    {
+      extension: fileExtension,
+    },
+    {
+      headers: {
+        authorization: `Bearer ${process.env.LEONARDO_API_KEY}`,
+      },
+    }
+  );
+  if (response.status === 200) {
+    return {
+      success: true,
+      data: response.data.uploadInitImage,
+    };
+  }
+  console.log(response);
+  return {
+    success: false,
+    message: "Init upload failed.",
+  };
+};
+
+// Function to download and save image locally
+async function downloadImage(url, path) {
+  const response = got.stream(url);
+
+  await pipe(response, fs.createWriteStream(path));
+}
+async function uploadImage(path, url, fields, id) {
+  if (!fields) {
+    throw new Error("Fields not provided");
+  }
+
+  if (!fs.existsSync(path)) {
+    throw new Error("File not found: " + path);
+  }
+
+  let form = new FormData();
+  let parsedFields = fields;
+
+  if (typeof fields === "string") {
+    parsedFields = JSON.parse(fields);
+  } else if (!(fields instanceof Object)) {
+    throw new Error("Fields must be a JSON string or an object");
+  }
+
+  Object.entries(parsedFields).forEach(([key, value]) => {
+    form.append(key, value);
+  });
+  form.append("file", fs.createReadStream(path));
+
+  const response = await axios.post(url, form);
+
+  if (response.status < 200 || response.status > 299) {
+    throw new Error("Upload error: " + response.status);
+  }
+
+  console.log("S3 upload response:", response.status);
+
+  // Check if the upload was successful
+  // Url: https://cloud.leonardo.ai/api/rest/v1/init-image/{id}
+
+  const uploadStatus = await axios.get(`${BASE_URL}init-image/${id}`, {
+    headers: {
+      authorization: `Bearer ${process.env.LEONARDO_API_KEY}`,
+    },
+  });
+  console.log("Upload status:", uploadStatus);
+
+  return response.status;
+}
+
+export async function uploadDatasetImage(
+  fileUrl,
+  uploadEndpointData,
+  filename,
+  id
+) {
+  const tempDir = path.resolve(__dirname, "../tmp"); // Absolute path to temp directory
+
+  // Create temp directory if it doesn't exist
+  if (!fs.existsSync(tempDir)) {
+    fs.mkdirSync(tempDir, { recursive: true });
+  }
+
+  const filePath = path.resolve(tempDir, filename); // Absolute path to temp file
+
+  // Download the image first
+  await downloadImage(fileUrl, filePath);
+
+  const fields = JSON.parse(uploadEndpointData.fields);
+  const url = uploadEndpointData.url;
+
+  // Then upload the image
+  const res = await uploadImage(filePath, url, fields, id);
+
+  // Then delete the image
+  fs.unlinkSync(filePath);
+  return res;
+}

@@ -2,7 +2,7 @@ import { SlashCommandBuilder } from "discord.js";
 
 import models from "../assets/models.json" assert { type: "json" };
 
-export default function createCommand(name) {
+export default function createCommand(name, remixCommand) {
   // Load the models from the assets/models.json file
   const modelOptions = models.map((model) => {
     return {
@@ -11,9 +11,18 @@ export default function createCommand(name) {
     };
   });
 
-  return new SlashCommandBuilder()
+  let commandBuilder = new SlashCommandBuilder()
     .setName(name)
-    .setDescription("Generate an image based on a prompt.")
+    .setDescription("Generate an image based on a prompt.");
+  if (remixCommand) {
+    commandBuilder = commandBuilder.addAttachmentOption((option) =>
+      option
+        .setName("image")
+        .setDescription("The image to remix.")
+        .setRequired(true)
+    );
+  }
+  commandBuilder = commandBuilder
     .addStringOption((option) =>
       option
         .setName("prompt")
@@ -44,14 +53,6 @@ export default function createCommand(name) {
         .setMaxValue(20)
         .setMinValue(1)
     )
-    .addBooleanOption((option) =>
-      option
-        .setName("prompt_magic")
-        .setDescription(
-          "Increases the chance of the prompt being reflected as intended. (doubles token cost)"
-        )
-        .setRequired(false)
-    )
     .addStringOption((option) =>
       option
         .setName("negative_prompt")
@@ -68,9 +69,33 @@ export default function createCommand(name) {
     .addIntegerOption((option) =>
       option
         .setName("num_images")
-        .setDescription("The number of images to generate. (Max 8) (Default 4)")
+        .setDescription("The number of images to generate. (Max 5) (Default 4)")
         .setRequired(false)
         .setMaxValue(5)
         .setMinValue(1)
     );
+
+  if (remixCommand) {
+    commandBuilder = commandBuilder.addNumberOption((option) =>
+      option
+        .setName("init_strength")
+        .setDescription(
+          "The initialization strength for the remix. Must be between 0 and 1."
+        )
+        .setRequired(false)
+        .setMaxValue(1)
+        .setMinValue(0)
+    );
+  } else {
+    commandBuilder = commandBuilder.addBooleanOption((option) =>
+      option
+        .setName("prompt_magic")
+        .setDescription(
+          "Increases the chance of the prompt being reflected as intended. (doubles token cost)"
+        )
+        .setRequired(false)
+    );
+  }
+
+  return commandBuilder;
 }
