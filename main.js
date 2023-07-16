@@ -27,8 +27,6 @@ import {
 
 const { __dirname, __filename } = getGlobals(import.meta.url);
 
-import "./webhook.js";
-
 async function getRootParentMessageID(message) {
   if (!message.reference) {
     // No parent message found, return the current message ID
@@ -139,10 +137,18 @@ client.on(Events.InteractionCreate, async (interaction) => {
           ephemeral: true,
         });
       } else {
-        await interaction.reply({
-          content: "There was an error while executing this command!",
-          ephemeral: true,
-        });
+        try {
+          await interaction.reply({
+            content: "There was an error while executing this command!",
+            ephemeral: true,
+          });
+        } catch (error) {
+          console.error(error);
+          await interaction.channel.send({
+            content:
+              "Something went extremely wrong! Please try again. If the problem persists, please contact us through https://www.kyxai.app.",
+          });
+        }
       }
     }
   } else if (interaction.isButton()) {
