@@ -5,7 +5,7 @@ export const data = createGenerateImageCommand("remix_image", true);
 import { hasGuildActivatedFeature, FEATURES } from "../../api/data.js";
 
 export async function execute(interaction) {
-  interaction.deferReply({ ephemeral: false });
+  await interaction.deferReply({ ephemeral: false });
   // Check whether guild has Image Feature activated
   const hasFeature = await hasGuildActivatedFeature(
     interaction.guildId,

@@ -200,37 +200,41 @@ const sendAndSaveReply = async (
   let replyId = -1;
 
   // Send the images to the channel where the command was used
-  if (interaction) {
-    const interactionResponse = await interaction.editReply({
-      content: "Your images are ready!",
-      files: images,
-      ephemeral: false,
-      components: buttons,
-    });
-    messageId = interaction.id;
-    replyId = interactionResponse.id;
-  } else {
-    const messageResponse = await message.reply({
-      content: "Your images are ready!",
-      files: images,
-      ephemeral: false,
-      components: buttons,
-    });
-    messageId = message.id;
-    replyId = messageResponse.id;
-  }
+  try {
+    if (interaction) {
+      const interactionResponse = await interaction.editReply({
+        content: "Your images are ready!",
+        files: images,
+        ephemeral: false,
+        components: buttons,
+      });
+      messageId = interaction.id;
+      replyId = interactionResponse.id;
+    } else {
+      const messageResponse = await message.reply({
+        content: "Your images are ready!",
+        files: images,
+        ephemeral: false,
+        components: buttons,
+      });
+      messageId = message.id;
+      replyId = messageResponse.id;
+    }
 
-  // For each image result, save the image generation info
-  for (let i = 0; i < results.length; i++) {
-    await saveImageGenerationInfo(
-      userId,
-      results[i].id,
-      guildId,
-      messageId,
-      interactionId,
-      prompt,
-      results[i].url
-    );
+    // For each image result, save the image generation info
+    for (let i = 0; i < results.length; i++) {
+      await saveImageGenerationInfo(
+        userId,
+        results[i].id,
+        guildId,
+        messageId,
+        interactionId,
+        prompt,
+        results[i].url
+      );
+    }
+  } catch (e) {
+    console.error(e);
   }
   return replyId;
 };

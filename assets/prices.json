@@ -1,5 +1,5 @@
 {
-    "speakPerCharacter": 1,
-    "imageGeneration": 30,
-    "upscaleImageCost": 20
+    "speakPerCharacter": 0.2,
+    "imageGeneration": 1,
+    "upscaleImageCost": 2
 }
