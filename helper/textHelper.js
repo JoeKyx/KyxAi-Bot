@@ -1,5 +1,6 @@
 import { generateImagesFromMessage } from "./imageGenerationHelper.js";
-import { saveChatMessage } from "../api/chatData.js";
+
+import { saveChatMessage, getImagePrompt } from "../api/chatData.js";
 export const splitMessageIntoChunks = (message, chunkSize) => {
   const chunks = [];
   let currentChunk = "";
@@ -15,21 +16,22 @@ export const splitMessageIntoChunks = (message, chunkSize) => {
   return chunks;
 };
 
-export const checkForImageGeneration = async (response, message) => {
-  console.log("Checking for image generation");
-  console.log(response);
-  // Check whether the message contains 'IMGPMPT:' If yes return all the text after that
-  const index = response.indexOf("IMGPMPT:");
-  if (index === -1) {
-    console.log("Got no image generation prompt");
+export const checkForImageGeneration = async (botReply, message) => {
+  // Generate the prompt
+  const prompt = await getImagePrompt(botReply);
+
+  console.log(prompt);
+
+  if (!prompt.success) {
     return false;
   }
+  console.log("Image generation prompt: " + prompt.response);
   // Return all text after the 'IMGPMPT:'
   console.log("Generating image");
   const replyId = await generateImagesFromMessage(
     message,
     1,
-    response.substring(index + 8),
+    prompt.response,
     512,
     512,
     "",
@@ -39,13 +41,4 @@ export const checkForImageGeneration = async (response, message) => {
   );
 
   return replyId;
-};
-
-export const cleanReply = (reply) => {
-  // Remove everything after IMGPMPT: from the reply
-  const index = reply.indexOf("IMGPMPT:");
-  if (index === -1) {
-    return reply;
-  }
-  return reply.substring(0, index);
 };

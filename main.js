@@ -8,7 +8,6 @@ import { upscaleImageHandler } from "./helper/upscaleImage.js";
 import {
   splitMessageIntoChunks,
   checkForImageGeneration,
-  cleanReply,
 } from "./helper/textHelper.js";
 import { config } from "dotenv";
 import {
@@ -209,7 +208,7 @@ client.on(Events.MessageCreate, async (message) => {
     const splitMessage = splitMessageIntoChunks(reply.response, 2000);
 
     // Send the reply
-    const replyMessage = await message.reply(cleanReply(splitMessage[0]));
+    const replyMessage = await message.reply(splitMessage[0]);
     // Wenn die Antwort erfolgreich war, speichere die Nachricht in der Datenbank
     if (reply.success) {
       await saveChatMessage(
@@ -217,19 +216,27 @@ client.on(Events.MessageCreate, async (message) => {
         replyMessage.id,
         reply.openAiParentMessageId
       );
-      const replyId = await checkForImageGeneration(reply.response, message);
-      if (replyId) {
-        await saveChatMessage(
-          message.author.id,
-          replyId,
-          reply.openAiParentMessageId
-        );
+      console.log("Image: " + reply.image);
+      if (reply.image) {
+        const replyId = await checkForImageGeneration(reply.response, message);
+
+        if (replyId) {
+          await saveChatMessage(
+            message.author.id,
+            replyId,
+            reply.openAiParentMessageId
+          );
+        } else {
+          await replyMessage.reply(
+            "Sorry I lost some of my pencils. I will go and search for them. Please ask me again later."
+          );
+        }
       }
     }
     // Send the rest of the message if there are any
     if (splitMessage.length > 1) {
       for (let i = 1; i < splitMessage.length; i++) {
-        const newReply = await replyMessage.reply(cleanReply(splitMessage[i]));
+        const newReply = await replyMessage.reply(splitMessage[i]);
         await saveChatMessage(
           message.author.id,
           newReply.id,
@@ -260,7 +267,7 @@ client.on(Events.MessageCreate, async (message) => {
     // Split the message into multiple messages with a length of 2000 characters
     const splitMessage = splitMessageIntoChunks(reply.response, 2000);
 
-    const replyMessage = await message.reply(cleanReply(splitMessage[0]));
+    const replyMessage = await message.reply(splitMessage[0]);
     // Wenn die Antwort erfolgreich war, speichere die Nachricht in der Datenbank
     if (reply.success) {
       await saveChatMessage(
@@ -268,20 +275,27 @@ client.on(Events.MessageCreate, async (message) => {
         replyMessage.id,
         reply.openAiParentMessageId
       );
-      const replyId = await checkForImageGeneration(reply.response, message);
-      if (replyId) {
-        await saveChatMessage(
-          message.author.id,
-          replyId,
-          reply.openAiParentMessageId
-        );
+      if (reply.image) {
+        const replyId = await checkForImageGeneration(reply.response, message);
+
+        if (replyId) {
+          await saveChatMessage(
+            message.author.id,
+            replyId,
+            reply.openAiParentMessageId
+          );
+        } else {
+          await replyMessage.reply(
+            "Sorry I lost some of my pencils. I will go and search for them. Please ask me again later."
+          );
+        }
       }
     }
 
     // Send the rest of the message if there are any
     if (splitMessage.length > 1) {
       for (let i = 1; i < splitMessage.length; i++) {
-        const newReply = await replyMessage.reply(cleanReply(splitMessage[i]));
+        const newReply = await replyMessage.reply(splitMessage[i]);
         await saveChatMessage(
           message.author.id,
           newReply.id,

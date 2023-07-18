@@ -2,7 +2,7 @@ import firebase from "./firebaseApi.js";
 
 import { userCheck, removeTokens } from "../api/data.js";
 
-import { chat } from "../api/openAiApi.js";
+import { chat, generateImagePrompt } from "../api/openAiApi.js";
 
 import {
   collection,
@@ -41,6 +41,7 @@ export const getInitialChatReply = async (
       response: chatResponse.response,
       messageId: messageId,
       openAiParentMessageId: chatResponse.parentMessageId,
+      image: chatResponse.image,
     };
   } else {
     return {
@@ -48,6 +49,7 @@ export const getInitialChatReply = async (
       response: "Sorry, something interrupted me from responding.",
       messageId: messageId,
       openAiParentMessageId: chatResponse.parentMessageId,
+      image: false,
     };
   }
 };
@@ -78,6 +80,7 @@ export const getChatReply = async (
         response: chatResponse.response,
         messageId: messageId,
         openAiParentMessageId: chatResponse.parentMessageId,
+        image: chatResponse.image,
       };
     } else {
       return {
@@ -85,6 +88,7 @@ export const getChatReply = async (
         response: "Sorry, something interrupted me from responding.",
         messageId: messageId,
         openAiParentMessageId: chatResponse.parentMessageId,
+        image: false,
       };
     }
   } else {
@@ -94,6 +98,7 @@ export const getChatReply = async (
         "Use /help to see how you can interact with me. Or @mention me in a message to chat with me, you can then reply to the messages.",
       messageId: messageId,
       openAiParentMessageId: null,
+      image: false,
     };
   }
 };
@@ -113,4 +118,10 @@ export const saveChatMessage = async (
     },
     { merge: true }
   );
+};
+
+export const getImagePrompt = async (message) => {
+  console.log("GetImagePrompt for: " + message);
+  const res = await generateImagePrompt(message.replace(/<@!?\d+>/g, ""));
+  return res;
 };
