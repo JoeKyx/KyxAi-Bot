@@ -27,6 +27,7 @@ export default function createCommand(name, remixCommand) {
       option
         .setName("prompt")
         .setDescription("The prompt to generate an image from.")
+        .setMaxLength(1000)
         .setRequired(true)
     )
     .addIntegerOption((option) =>
@@ -58,6 +59,7 @@ export default function createCommand(name, remixCommand) {
         .setName("negative_prompt")
         .setDescription("What NOT to include in the image.")
         .setRequired(false)
+        .setMaxLength(1000)
     )
     .addStringOption((option) =>
       option

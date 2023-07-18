@@ -18,24 +18,22 @@ export const splitMessageIntoChunks = (message, chunkSize) => {
 
 export const checkForImageGeneration = async (botReply, message) => {
   // Generate the prompt
-  const prompt = await getImagePrompt(botReply);
+  const imageResponse = await getImagePrompt(botReply);
+  console.log(imageResponse);
 
-  console.log(prompt);
-
-  if (!prompt.success) {
+  if (!imageResponse.success || !imageResponse.prompt) {
     return false;
   }
-  console.log("Image generation prompt: " + prompt.response);
   // Return all text after the 'IMGPMPT:'
   console.log("Generating image");
   const replyId = await generateImagesFromMessage(
     message,
     1,
-    prompt.response,
-    512,
-    512,
+    imageResponse.prompt,
+    null,
+    null,
     "",
-    "6bef9f1b-29cb-40c7-b9df-32b51c1f67d3",
+    imageResponse.model,
     false,
     7
   );

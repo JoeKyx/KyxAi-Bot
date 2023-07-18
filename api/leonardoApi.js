@@ -8,6 +8,7 @@ import got from "got";
 import path from "path";
 import { fileURLToPath } from "url";
 import FormData from "form-data";
+import models from "../assets/models.json" assert { type: "json" };
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const pipe = promisify(pipeline);
@@ -30,6 +31,18 @@ export const generateImages = async (
 ) => {
   console.log("generateImages: " + prompt);
   console.log("initImageId: " + initImageId);
+
+  // Check if model matches id from a model in the models.json file
+  if (model) {
+    const modelId = models.find((modelObj) => modelObj.id === model);
+    if (!modelId) {
+      return {
+        success: false,
+        message: "Invalid model id.",
+      };
+    }
+  }
+
   try {
     const response = await axios.post(
       `${BASE_URL}generations`,
