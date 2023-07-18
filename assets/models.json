@@ -10,7 +10,7 @@
   {
     "name": "3D Animation Style",
     "id": "d69c8273-6b17-4a30-a13e-d6637ae1c644",
-    "description": "Great at 3D animation character, capable of complex scenes with rich color.",
+    "description": "Great at 3D animation characters, capable of complex scenes with rich color.",
     "image": "https://cdn.leonardo.ai/users/384ab5c8-55d8-47a1-be22-6a274913c324/generations/0e85d140-3ea0-4179-a708-ae95bf9329a3/3D_Animation_Style_a_masterpiece_image_of_an_older_tired_and_b_2.jpg",
     "width": 640,
     "height": 832
@@ -44,14 +44,6 @@
     "id": "ab200606-5d09-4e1e-9050-0b05b839e944",
     "description": "Create all sorts of isometric fantasy environments. try appending \"3d vray render, isometric\" and using a guidance scale of 6. for the negative prompt, try \"unclear, harsh, oversaturated, soft, blurry\".",
     "image": "https://cdn.leonardo.ai/users/384ab5c8-55d8-47a1-be22-6a274913c324/generations/8f5f48d1-0042-4625-b47a-83e266432abf/Isometric_Fantasy_Waterfall_lake_and_snowy_mountain_peaks_isometric_3d_render_2.jpg",
-    "width": 768,
-    "height": 768
-  },
-  {
-    "name": "Artificial Humans v3",
-    "id": "8ba4ef18-62e6-4c7a-8a8a-d8c4499c9247",
-    "description": "Best used for human portraits - use a base64 of a human for the best results!",
-    "image": "https://cdn.leonardo.ai/users/384ab5c8-55d8-47a1-be22-6a274913c324/generations/98b5d945-1b4d-4ed1-b2d6-2b57167ce82c/Artificial_Humans_v3_portrait_of_a_man_in_a_hat_unknown_unseen_before_0.jpg",
     "width": 768,
     "height": 768
   },
