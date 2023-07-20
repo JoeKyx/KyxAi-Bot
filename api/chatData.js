@@ -35,7 +35,7 @@ export const getInitialChatReply = async (
   chatResponse = await chat(prompt, null, username);
 
   if (chatResponse.success) {
-    await removeTokens(userid, 10);
+    await removeTokens(userid, 0.5);
     return {
       success: true,
       response: chatResponse.response,
@@ -74,7 +74,7 @@ export const getChatReply = async (
       username
     );
     if (chatResponse.success) {
-      await removeTokens(userid, 10);
+      await removeTokens(userid, 0.5);
       return {
         success: true,
         response: chatResponse.response,

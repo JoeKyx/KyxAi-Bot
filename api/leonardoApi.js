@@ -227,18 +227,6 @@ async function uploadImage(path, url, fields, id) {
     throw new Error("Upload error: " + response.status);
   }
 
-  console.log("S3 upload response:", response.status);
-
-  // Check if the upload was successful
-  // Url: https://cloud.leonardo.ai/api/rest/v1/init-image/{id}
-
-  const uploadStatus = await axios.get(`${BASE_URL}init-image/${id}`, {
-    headers: {
-      authorization: `Bearer ${process.env.LEONARDO_API_KEY}`,
-    },
-  });
-  console.log("Upload status:", uploadStatus);
-
   return response.status;
 }
 
