@@ -56,8 +56,8 @@
     "height": 832
   },
   {
-    "name": "RPG 4.0",
-    "id": "a097c2df-8f0c-4029-ae0f-8fd349055e61",
+    "name": "RPG v5",
+    "id": "f1929ea3-b169-4c18-a16c-5d58b4292c69",
     "description": "This model is best at creating rpg character portraits with the ability for great photorealism. Created by anashel.",
     "image": "https://cdn.leonardo.ai/users/384ab5c8-55d8-47a1-be22-6a274913c324/generations/20cd8cca-ad36-46b1-a0e3-8bd669112017/RPG_portrait_painting_of_a_redhead_feminine_royal_woman_with_a_fe_3.jpg",
     "width": 640,
@@ -172,6 +172,14 @@
     "id": "2d18c0af-374e-4391-9ca2-639f59837c85",
     "description": "Create a wide range of magical items like weapons, shields, boots, books. Very versatile.",
     "image": "https://cdn.leonardo.ai/users/384ab5c8-55d8-47a1-be22-6a274913c324/generations/1a2ce3b1-998c-4795-8582-6f49aca28160/Default_a_red_boot_object_concept_art_dota_2_style_red_abstract_backg_1.png ",
+    "width": 512,
+    "height": 512
+  },
+  {
+    "name": "Anime Pastel Dream",
+    "id": "1aa0f478-51be-4efd-94e8-76bfc8f533af",
+    "description": "Create amazing anime style art with a pastel color palette.",
+    "image": "https://cdn.leonardo.ai/users/384ab5c8-55d8-47a1-be22-6a274913c324/generations/8cc624c3-c1ba-40c9-b3cd-21056382728a/AnimePastelDream_fuji_film_candid_portrait_o_a_black_woman_wea_2.jpg?w=512",
     "width": 512,
     "height": 512
   },
