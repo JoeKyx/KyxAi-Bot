@@ -184,11 +184,14 @@ export const getDownloadUrl = async (messageId, guildId) => {
 export const uploadImage = async (fileUrl) => {
   // Check whether the file is an image (png, jpg, jpeg, webp)
   const fileExtension = fileUrl.split(".").pop();
+  const fileExtensionBeforeQuestionMark = fileExtension.split("?")[0];
+  console.log(fileExtensionBeforeQuestionMark);
+  console.log(fileUrl);
   if (
-    fileExtension != "png" &&
-    fileExtension != "jpg" &&
-    fileExtension != "jpeg" &&
-    fileExtension != "webp"
+    fileExtensionBeforeQuestionMark != "png" &&
+    fileExtensionBeforeQuestionMark != "jpg" &&
+    fileExtensionBeforeQuestionMark != "jpeg" &&
+    fileExtensionBeforeQuestionMark != "webp"
   ) {
     return {
       success: false,
@@ -197,7 +200,9 @@ export const uploadImage = async (fileUrl) => {
   }
 
   // Get the upload URL from the backend
-  const uploadEndpoint = await initUploadEndpoint(fileExtension);
+  const uploadEndpoint = await initUploadEndpoint(
+    fileExtensionBeforeQuestionMark
+  );
 
   console.log(uploadEndpoint);
   if (!uploadEndpoint.success || !uploadEndpoint.data) {
@@ -209,7 +214,7 @@ export const uploadImage = async (fileUrl) => {
   try {
     // generate random filename
     const filename = Math.random().toString(36).substring(2, 15);
-    const pathForTempFile = `${filename}.${fileExtension}`;
+    const pathForTempFile = `${filename}.${fileExtensionBeforeQuestionMark}`;
     const response = await uploadDatasetImage(
       fileUrl,
       uploadEndpoint.data,
